@@ -106,7 +106,7 @@ public_users.get('/author/:author', async function (req, res) {
   });
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
+/*public_users.get('/title/:title',function (req, res) {
     const title = req.params.title
     const bookKeys = Object.keys(books);
     const matchingBooks = [];
@@ -122,7 +122,38 @@ public_users.get('/title/:title',function (req, res) {
     }else {
         return res.status(404).json({messaage: "No books found for this title"})
     }
-});
+});*/
+
+// Get all books based on title using Async/Await
+public_users.get('/title/:title', async function (req, res) {
+    const title = req.params.title;
+  
+    try {
+      const getBooksByTitle = () => {
+        return new Promise((resolve, reject) => {
+          const bookKeys = Object.keys(books);
+          const matchingBooks = [];
+  
+          for (let key of bookKeys) {
+            if (books[key].title.toLowerCase() === title.toLowerCase()) {
+              matchingBooks.push(books[key]);
+            }
+          }
+  
+          if (matchingBooks.length > 0) {
+            resolve(matchingBooks);
+          } else {
+            reject("No books found with this title");
+          }
+        });
+      };
+  
+      const booksByTitle = await getBooksByTitle();
+      return res.status(200).send(JSON.stringify(booksByTitle, null, 4));
+    } catch (error) {
+      return res.status(404).json({ message: error });
+    }
+  });
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
